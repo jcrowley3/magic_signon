@@ -1,0 +1,11 @@
+# to build and use this on the dev Docker Swarm environment, follow the instruct
+# docker build \
+#   --platform linux/amd64 \
+#   --file Docker/Dockerfile.localstack_localhost \
+#   --tag magic_signon/localstack:latest .
+
+# docker push docker push magic_signon/localstack:latest
+
+FROM localstack/localstack:latest
+COPY Docker/localstack_ready.sh /etc/localstack/init/ready.d/ready.sh
+RUN chmod +x /etc/localstack/init/ready.d/ready.sh

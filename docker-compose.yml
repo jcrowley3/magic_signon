@@ -1,0 +1,98 @@
+# For Docker testing, you can edit the Dockerfile then build/tag:
+#   docker build -t bullseye:test -f Docker/Dockerfile.magic_signon_localhost .
+# Then use the tagged image (below)
+
+version: '3'
+name: magic_signon
+services:
+  localstack:
+    container_name: magic_localstack
+    build:
+      context: .
+      dockerfile: Docker/Dockerfile.localstack_localhost
+    ports:
+      - "127.0.0.1:4566:4566"            # LocalStack Gateway
+      - "127.0.0.1:4510-4515:4510-4515"  # external services port range
+    environment:
+      # LocalStack configuration: https://docs.localstack.cloud/references/configuration/
+      - DEBUG=${DEBUG:-0}
+    volumes:
+      # - "${LOCALSTACK_VOLUME_DIR:-./volume}:/var/lib/localstack"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    networks:
+      - auth_network
+  magic_signon_db:
+    container_name: magic_signon_db
+    build:
+      context: .
+      dockerfile: Docker/Dockerfile.magic_signon_db
+    volumes:
+      - './postgresDB-data/:/var/lib/postgresql/data'
+    environment:
+      MYSQL_ROOT_HOST: '%'
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_LOG_CONSOLE: "true"
+      MYSQL_DATABASE: magic_signon_db
+      MYSQL_USER: magic_signon
+      MYSQL_PASSWORD: password
+      POSTGRES_DB: magic_signon_db
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: password
+      PGPASSWORD: password
+    expose:
+      - 5432
+    ports:
+      - 5434:5432
+    networks:
+      - auth_network
+  magic_signon_api:
+    container_name: magic_signon_api
+    build:
+      context: .
+      dockerfile: Docker/Dockerfile.magic_signon_localhost
+    environment:
+      AWS_ACCESS_KEY_ID: "foo"
+      AWS_SECRET_ACCESS_KEY: "bar"
+      AWS_REGION: "us-east-1"
+      ACCOUNT_SID: ${ACCOUNT_SID}
+      ACCOUNT_TOKEN: ${ACCOUNT_TOKEN}
+      ALEMBIC_INI_FILE: "alembic.ini"
+      ALGORITHM: ${ALGORITHM}
+      BASE_URL: "http://localhost:8084/"
+      DD_TRACE_ENABLED: "false" # Datadog is fully disabled
+      DEBUG: "False"
+      ENV: local
+      FERNET_KEY: ${FERNET_KEY}
+      # SEGMENT_QUERY_QUEUE_URL is what Treasure Vault uses to publish user queries to (give me all users that are x and y)
+      SEGMENT_QUERY_QUEUE_URL: "http://sqs.us-east-1.localhost.localstack.cloud:4566/000000000000/localstack-segment-query"
+      # SEGMENT_RESPONSE_QUEUE_URL is where magic_signon publishes the responses
+      SEGMENT_RESPONSE_QUEUE_URL: "http://sqs.us-east-1.localhost.localstack.cloud:4566/000000000000/localstack-segment-response"
+      JWT_ENFORCED: "true"
+      LOG_LEVEL: debug
+      POSTGRES_DB: magic_signon_db
+      POSTGRES_HOSTNAME: magic_signon_db
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: password
+      POSTGRES_PORT: 5432
+      RAILS_JWT_SECRET_KEY: ${RAILS_JWT_SECRET_KEY}
+      SECRET_KEY: ${SECRET_KEY}
+      SPARKPOST_KEY: ${SPARKPOST_KEY}
+      TWILIO_FROM: "+16193299600"
+    volumes:
+      - ./app:/app/app
+      - ./tests:/app/tests
+    ports:
+      - '83:83'
+    depends_on:
+      - magic_signon_db
+      - localstack
+    restart: always
+    networks:
+      - auth_network
+    entrypoint: /entrypoint.sh # this is renamed from the swarm entrypoint script
+
+networks:
+  auth_network:
+    driver: bridge
+    name: auth_network
+    external: true

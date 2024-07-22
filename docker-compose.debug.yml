@@ -1,0 +1,32 @@
+version: '3'
+name: magic_signon
+services:
+  localstack:
+    extends:
+      file: docker-compose.yml
+      service: localstack
+  magic_signon_db:
+    extends:
+      file: docker-compose.yml
+      service: magic_signon_db
+    networks:
+      - auth_network
+  magic_signon_api:
+    extends:
+      file: docker-compose.yml
+      service: magic_signon_api
+    environment:
+      DEBUG: 'True'
+      LOG_LEVEL: debug
+    ports:
+      - '83:83'
+      - '5680:5680'
+    networks:
+      - auth_network
+    entrypoint: /entrypoint.sh # this is renamed from the swarm entrpoint script
+
+networks:
+  auth_network:
+    driver: bridge
+    name: auth_network
+    external: true

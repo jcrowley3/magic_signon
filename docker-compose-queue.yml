@@ -1,0 +1,22 @@
+version: '3'
+services:
+  localstack:
+    container_name: "magic_localstack"
+    image: localstack/localstack
+    ports:
+      - "127.0.0.1:4566:4566"            # LocalStack Gateway
+      - "127.0.0.1:4510-4515:4510-4515"  # external services port range
+    environment:
+      # LocalStack configuration: https://docs.localstack.cloud/references/configuration/
+      - DEBUG=${DEBUG:-0}
+    volumes:
+      # - "${LOCALSTACK_VOLUME_DIR:-./volume}:/var/lib/localstack"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    networks:
+      - auth_network
+
+networks:
+  auth_network:
+    driver: bridge
+    name: auth_network
+    external: true

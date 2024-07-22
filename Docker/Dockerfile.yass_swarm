@@ -1,0 +1,27 @@
+FROM python:3.11.4-slim-bullseye
+WORKDIR /app
+
+RUN apt-get update \
+  && apt -y install iputils-ping vim postgresql-client alembic curl cron dnsutils \
+  && apt-get clean
+
+# DataDog
+RUN pip install ddtrace
+
+COPY requirements.txt ./
+RUN pip install -r requirements.txt
+
+# copy the application
+COPY app/ /app/app
+COPY ./alembic /app/alembic
+COPY alembic.ini /app
+COPY app/producer.py /app
+RUN chmod +x /app/producer.py
+
+COPY Docker/entrypoint_swarm.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+# this was used for resolving localstack over the Docker network
+# not used anymore, but save for the minute
+# COPY Docker/localstack_ip.sh /localstack_ip.sh
+# RUN chmod +x /localstack_ip.sh

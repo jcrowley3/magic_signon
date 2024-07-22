@@ -1,0 +1,40 @@
+FROM python:3.11.4-slim-bullseye
+WORKDIR /app
+
+RUN apt-get update \
+  && apt -y install gettext-base iputils-ping vim postgresql-client alembic curl npm \
+  && apt-get clean
+
+RUN npm cache clean -f
+RUN npm install -g n
+RUN n stable
+
+RUN pip install --upgrade pip
+# ruff is for linting
+RUN pip install ruff
+COPY pyproject.toml /app
+# Newman for tests
+RUN apt install -y nodejs npm
+RUN npm install -g newman
+
+# install dependencies first so that changes in application code do not invalidate
+# the cache of the layer with installed dependencies
+COPY requirements.txt ./
+# when pip install is here, docker caches all the pip dependencies
+RUN pip install -r requirements.txt
+# copy the application and tests
+COPY ./app/ /app/app
+COPY ./alembic /app/alembic
+COPY alembic.ini /app
+# linter script
+COPY linter.sh /app
+RUN chmod +x /app/linter.sh
+
+COPY app/producer.py /app
+
+# debug mode funtionality
+RUN pip install debugpy
+# tests
+COPY ./tests/ /app/tests
+COPY Docker/entrypoint_localhost.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh

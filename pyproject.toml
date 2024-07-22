@@ -1,0 +1,19 @@
+[project]
+requires-python = ">=3.11"         # Support Python 3.11+.
+
+[tool.ruff]
+lint.ignore = ["E501", "UP007", "FIX002"]
+# E501 is to avoid checking for line-length violations
+# UP007 is to avoid checking for `X | Y` type annotations
+# FIX002 is to avoid checking for `# FIXME` or `TODO` comments
+
+lint.select = [
+  "E",                             # pycodestyle
+  "F",                             # pyflakes
+  #"UP",                            # pyupgrade
+  "Q",                             # flake8 quotes
+  "FIX"                            # flake8-fixme
+]
+
+[lint.per-file-ignores]
+"__init__.py" = ["F401"]           # Ignore `F401` violations in any __init__.py file

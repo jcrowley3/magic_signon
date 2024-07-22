@@ -1,0 +1,49 @@
+---
+version: '3.9'
+services:
+  api:
+    image: ${IMAGE_TAG}
+    deploy:
+      mode: replicated
+      replicas: ${REPLICAS}
+      restart_policy:
+        condition: on-failure
+      update_config:
+        parallelism: 2
+        delay: 15s
+        order: start-first
+    labels:
+      - com.datadoghq.tags.service=magic_signon
+      - com.datadoghq.tags.version=${TAG}
+    environment:
+      ACCOUNTS_QUEUE_URL: ${ACCOUNTS_QUEUE_URL}
+      ACCOUNT_SID: ${ACCOUNT_SID}
+      ACCOUNT_TOKEN: ${ACCOUNT_TOKEN}
+      ALEMBIC_INI_FILE: 'alembic.ini'
+      ALGORITHM: 'HS256'
+      AWS_REGION: 'us-west-1'
+      BASE_URL: 'https://magic_signon-${ENV}.magic_signon.app'
+      DD_AGENT_HOST: 'shared_datadog'
+      DEBUG: 'True'
+      ENV: ${ENV}
+      FERNET_KEY: ${FERNET_KEY}
+      JWT_ENFORCED: 'true' # TODO this is temporary
+      LOG_LEVEL: debug
+      POSTGRES_DB: magic_signon_${ENV}
+      POSTGRES_HOSTNAME: ${POSTGRES_HOSTNAME}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: ${POSTGRES_USER}
+      RAILS_JWT_SECRET_KEY: ${RAILS_JWT_SECRET_KEY}
+      SECRET_KEY: ${SECRET_KEY}
+      SEGMENT_QUERY_QUEUE_URL: ${SEGMENT_QUERY_QUEUE_URL}
+      SEGMENT_RESPONSE_QUEUE_URL: ${SEGMENT_RESPONSE_QUEUE_URL}
+      SPARKPOST_KEY: ${SPARKPOST_KEY}
+      TWILIO_FROM: '+16193299600'
+    networks:
+      - magic_signon_${ENV}
+    entrypoint: /entrypoint.sh
+
+networks:
+  magic_signon_${ENV}:
+    external: true

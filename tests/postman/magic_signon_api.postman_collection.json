@@ -1,0 +1,995 @@
+{
+	"info": {
+		"_postman_id": "48e5f2cc-ff94-4880-b635-f2daea2d0cd9",
+		"name": "Magic_signon_api",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "13402166"
+	},
+	"item": [
+		{
+			"name": "Server Health Test",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 418\", function () {",
+							"    pm.response.to.have.status(418);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/v1/health",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"v1",
+						"health"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Test User",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Successful POST request\", () => {",
+							"  pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});",
+							"",
+							"pm.test(\"Check that we got a UUID back\", () => {",
+							"    const responseJson = pm.response.json();",
+							"    pm.expect(responseJson).to.have.property('uuid')",
+							"    pm.collectionVariables.set('userUuid', responseJson.uuid);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"first_name\": \"Test\",\n    \"last_name\": \"User\",\n    \"work_email\": \"test.user@sparkpostbox.com\",\n    \"cell_number\": \"(579)741-2145\",\n    \"hire_date\": \"1/1/2015\",\n    \"continuous_service_date\": \"1/1/2015\",\n    \"employee_id\": 1139,\n    \"manager_id\": 200405,\n    \"cost_center_id\": 21121,\n    \"worker_type\": \"Employee\",\n    \"department\": \"Engineering\",\n    \"manager\": \"Jim W\",\n    \"location\": \"Seattle\",\n    \"business_title\": \"magic_signon Engineer\",\n    \"department_leader\": 200405\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/v1/users",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"v1",
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Users",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Successful GET request\", () => {",
+							"  pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});",
+							"",
+							"pm.test(\"Check that we got at least one user back\", () => {",
+							"    const responseJson = pm.response.json();",
+							"    pm.expect(responseJson.items.length).to.be.greaterThan(0);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/v1/users",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"v1",
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Test User",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Successful GET request\", () => {",
+							"  pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});",
+							"",
+							"pm.test(\"Check that we got the correct user back\", () => {",
+							"    const responseJson = pm.response.json();",
+							"    var userUuid = pm.collectionVariables.get('userUuid');",
+							"    pm.expect(responseJson.uuid).to.eql(userUuid);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/v1/users/{{userUuid}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"v1",
+						"users",
+						"{{userUuid}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Post Auth",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let response = pm.response.json();",
+							"",
+							"pm.collectionVariables.set(\"login_secret\", response.login_secret)",
+							"pm.collectionVariables.set(\"login_token\", response.login_token)",
+							"",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"service_type\": \"email\",\n    \"service_user_id\": \"test.user@sparkpostbox.com\" \n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/v1/auth",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"v1",
+						"auth"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Put Auth",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Update Bearer Token Value\", function () {",
+							"    var token = pm.response.headers.get('bearer');",
+							"",
+							"    if (token) {",
+							"        pm.environment.set('bearerToken', token);",
+							"        pm.globals.set('bearerToken', token);",
+							"    }",
+							"});",
+							"",
+							"",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"login_secret\": \"{{login_secret}}\",\n    \"login_token\": \"{{login_token}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/v1/auth/redeem",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"v1",
+						"auth",
+						"redeem"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update User",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Successful PUT request\", () => {",
+							"  pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});",
+							"",
+							"pm.test(\"Check that we got the updated user back\", () => {",
+							"    const responseJson = pm.response.json();",
+							"    pm.expect(responseJson.latitude).to.eql(pm.variables.get('latitude'));",
+							"    pm.expect(responseJson.longitude).to.eql(pm.variables.get('longitude'));",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.variables.set(\"latitude\", 1234)",
+							"pm.variables.set(\"longitude\", 1234)"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n//   \"first_name\": \"{{firstName}}\",\n//   \"last_name\": \"{{lastName}}\",\n  \"latitude\": 1234,\n  \"longitude\": 1234\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/v1/users/{{userUuid}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"v1",
+						"users",
+						"{{userUuid}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get User Services",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Successful PUT request\", () => {",
+							"  pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});",
+							"",
+							"pm.test(\"Check that we got the email service back\", () => {",
+							"    const responseJson = pm.response.json();",
+							"    pm.expect(responseJson).to.have.property('email');",
+							"    pm.expect(responseJson.email.length).to.be.greaterThan(0)",
+							"    pm.collectionVariables.set('serviceUuid',responseJson.email[0].uuid)",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/v1/users/{{userUuid}}/services",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"v1",
+						"users",
+						"{{userUuid}}",
+						"services"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create 2nd User Service of type \"email\"",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var userUuid = pm.collectionVariables.get('userUuid');",
+							"console.log(`user uuid is ${userUuid}`)"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Successful PUT request\", () => {",
+							"  pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});",
+							"",
+							"pm.test(\"Check that we got the service back\", () => {",
+							"    const responseJson = pm.response.json();",
+							"    pm.expect(responseJson).to.have.property('uuid');",
+							"    pm.collectionVariables.set('serviceUuid2', responseJson.uuid)",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"service_type\": \"email\",\n  \"service_user_id\": \"hello@foo.com\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/v1/users/{{userUuid}}/services",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"v1",
+						"users",
+						"{{userUuid}}",
+						"services"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get 2nd User Service",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Successful PUT request\", () => {",
+							"  pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});",
+							"",
+							"pm.test(\"Check that we got the 2nd email service back\", () => {",
+							"    const responseJson = pm.response.json();",
+							"    pm.expect(responseJson).to.have.property('uuid');",
+							"    pm.collectionVariables.set('serviceUuid2',responseJson.uuid)",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/v1/users/{{userUuid}}/services/{{serviceUuid2}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"v1",
+						"users",
+						"{{userUuid}}",
+						"services",
+						"{{serviceUuid2}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update User Service",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Successful PUT request\", () => {",
+							"  pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"service_user_screenname\": \"hello\",\n  \"service_user_name\": \"thing\",\n  \"service_access_token\": \"foo\",\n  \"service_access_secret\": \"bar\",\n  \"service_refresh_token\": \"lolz\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/v1/users/{{userUuid}}/services/{{serviceUuid}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"v1",
+						"users",
+						"{{userUuid}}",
+						"services",
+						"{{serviceUuid}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Bulk Update Services",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var serviceUuid = pm.collectionVariables.get('serviceUuid');",
+							"var serviceUuid2 = pm.collectionVariables.get('serviceUuid2');"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Successful PUT request\", () => {",
+							"  pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "[\n  {\n    \"uuid\": \"{{serviceUuid}}\",\n    \"service_user_screenname\": \"<test>\",\n    \"service_user_name\": \"<test>\",\n    \"service_access_token\": \"<test>\",\n    \"service_access_secret\": \"<test>\",\n    \"service_refresh_token\": \"<test>\"\n  },\n  {\n    \"uuid\": \"{{serviceUuid2}}\",\n    \"service_user_screenname\": \"<test>\",\n    \"service_user_name\": \"<test>\",\n    \"service_access_token\": \"<test>\",\n    \"service_access_secret\": \"<test>\",\n    \"service_refresh_token\": \"<test>\"\n  }\n]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/v1/users/{{userUuid}}/services",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"v1",
+						"users",
+						"{{userUuid}}",
+						"services"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Service UUID",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = pm.response.json();",
+							"",
+							"",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"",
+							"pm.collectionVariables.set(\"service_uuid\", jsonData.uuid)"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"// This route is being run for the sole purpose of getting the service_uuid after it is created so that it can be deleted"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"service_type\": \"email\",\n  \"service_user_id\": \"test.user@sparkpostbox.com\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/v1/users/{{userUuid}}/services",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"v1",
+						"users",
+						"{{userUuid}}",
+						"services"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Service UUID Two",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = pm.response.json();",
+							"",
+							"",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"// this test will fail if no user exists",
+							"pm.test(\"service should exist\", function () {",
+							"    pm.expect(jsonData.status).to.eql(\"exists\");",
+							"});",
+							"",
+							"pm.collectionVariables.set(\"service_uuid_two\", jsonData.uuid)"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"// This route is being run for the sole purpose of getting the service_uuid after it is created so that it can be deleted"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"service_type\": \"email\",\n  \"service_user_id\": \"hello@foo.com\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/v1/users/{{userUuid}}/services",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"v1",
+						"users",
+						"{{userUuid}}",
+						"services"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete User Service",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"// This route is being run for the sole purpose of getting the service_uuid after it is created so that it can be deleted"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/v1/users/{{userUuid}}/services/{{service_uuid}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"v1",
+						"users",
+						"{{userUuid}}",
+						"services",
+						"{{service_uuid}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete User Service Two",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"// This route is being run for the sole purpose of getting the service_uuid after it is created so that it can be deleted"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/v1/users/{{userUuid}}/services/{{service_uuid_two}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"v1",
+						"users",
+						"{{userUuid}}",
+						"services",
+						"{{service_uuid_two}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete User",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{bearerToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/v1/users/{{userUuid}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"v1",
+						"users",
+						"{{userUuid}}"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Successful Response",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [
+							{
+								"description": "Added as a part of security scheme: bearer",
+								"key": "Authorization",
+								"value": "Bearer <token>"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/v1/users/:user_uuid",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"v1",
+								"users",
+								":user_uuid"
+							],
+							"variable": [
+								{
+									"key": "user_uuid"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{}"
+				},
+				{
+					"name": "Unauthorized",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [
+							{
+								"description": "Added as a part of security scheme: bearer",
+								"key": "Authorization",
+								"value": "Bearer <token>"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/v1/users/:user_uuid",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"v1",
+								"users",
+								":user_uuid"
+							],
+							"variable": [
+								{
+									"key": "user_uuid"
+								}
+							]
+						}
+					},
+					"status": "Unauthorized",
+					"code": 401,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"detail\": \"Bearer token missing or unknown\"\n}"
+				},
+				{
+					"name": "Validation Error",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [
+							{
+								"description": "Added as a part of security scheme: bearer",
+								"key": "Authorization",
+								"value": "Bearer <token>"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/v1/users/:user_uuid",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"v1",
+								"users",
+								":user_uuid"
+							],
+							"variable": [
+								{
+									"key": "user_uuid"
+								}
+							]
+						}
+					},
+					"status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+					"code": 422,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"msg\": \"<string>\",\n      \"type\": \"<string>\"\n    },\n    {\n      \"loc\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"msg\": \"<string>\",\n      \"type\": \"<string>\"\n    }\n  ]\n}"
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://0.0.0.0:83",
+			"type": "string"
+		},
+		{
+			"key": "userUuid",
+			"value": "06ad1e1f05a61ab1ac423d5a6fb969193305145100c888a069eaacbf"
+		},
+		{
+			"key": "serviceUuid",
+			"value": ""
+		},
+		{
+			"key": "serviceUserId",
+			"value": ""
+		},
+		{
+			"key": "serviceUuid2",
+			"value": ""
+		},
+		{
+			"key": "service_uuid",
+			"value": ""
+		},
+		{
+			"key": "service_uuid_two",
+			"value": ""
+		},
+		{
+			"key": "login_secret",
+			"value": ""
+		},
+		{
+			"key": "login_token",
+			"value": ""
+		},
+		{
+			"key": "latitude",
+			"value": "1234",
+			"type": "string"
+		},
+		{
+			"key": "longitude",
+			"value": "1234",
+			"type": "string"
+		}
+	]
+}

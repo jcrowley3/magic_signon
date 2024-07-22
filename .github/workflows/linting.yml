@@ -1,0 +1,124 @@
+name: Lint Code
+
+on:
+  push:
+    paths:
+      - app/**
+    branches-ignore:
+      - master
+      - main
+      - staging
+      - dev
+      - test*
+
+jobs:
+  lint-code:
+    name: Lint code
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo (current branch)
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get install -y moreutils
+          pip install --upgrade pip
+          pip install ruff
+
+      - name: Setup Github
+        run: |
+          # user.name/user.email comes from the last commit
+          git config --global user.name "$(git log -n 1 --pretty=format:%an)"
+          git config --global user.email  "$(git log -n 1 --pretty=format:%ae)"
+
+      - name: Convert tabs to 4 spaces
+        run: |
+          echo "---Converting tabs to spaces---"
+          find ./app -name "*.py" -type f -exec bash -c 'expand -t 4 "$0" | sponge "$0"' {} \;
+          # only commit if there are changes, --allow-empty can probably be omitted
+          RESULT=$(git diff --name-only | grep '\.py$' | wc -l)
+          echo "${RESULT} file/s changed"
+
+          if [ ${RESULT} -ne "0" ]; then
+            echo "⎷ Committing changes"
+            git add ./app
+            git commit -a -m "Tabs to spaces" --allow-empty
+          else
+            echo "᙭ NO changes to commit"
+          fi
+
+      - name: Run Ruff and auto-fix common rules
+        run: |
+
+          # run through and auto-fix these simple rules
+          declare -A RUFF_RULES=(
+            ["F401"]="remove unused imports"
+            ["UP039"]="parentheses after class definition"
+            ["Q002"]="single quote docstring"
+            # E401 auto-fix for this rule seems to not be supported, see https://beta.ruff.rs/docs/rules/
+            # ["E401"]="multiple imports on one line"
+            ["F841"]="remove unused variables"
+          )
+          for RULE in "${!RUFF_RULES[@]}";
+          do
+            echo
+            echo "----${RUFF_RULES[${RULE}]}----"
+            echo "⇒ Running check"
+
+            ruff check ./app --select ${RULE} --fix
+            # only commit if there are changes, --allow-empty can probably be omitted
+            RESULT=$(git diff-index HEAD | awk '{print $3}' | wc  -l)
+            echo "${RESULT} changed file(s) found"
+
+            if [ ${RESULT} -ne "0" ]; then
+              echo "⎷ Committing changes"
+              git add ./app
+              git commit -a -m "${RUFF_RULES[${RULE}]}" --allow-empty
+            else
+              echo "᙭ NO changes to commit"
+            fi
+          done
+
+      - name: Display ref information for debugging
+        run: |
+          echo "github.ref: ${{ github.ref }}"
+          echo "github.head_ref: ${{ github.head_ref }}"
+
+      - name: Push changes back to branch
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ github.ref }}
+          force: true
+
+      - name: Echo job status (debugging)
+        if: always()
+        run: |
+          echo "Job status is ${{ job.status }}"
+
+      - name: Update Github with job status
+        if: always()
+        uses: guibranco/github-status-action-v2@v1.1.7
+        with:
+          authToken: ${{ secrets.GITHUB_TOKEN }}
+          state: ${{ job.status }}
+          sha: ${{ github.event.pull_request.head.sha || github.sha }}
+
+#
+# test by adding an unused import
+#
+# gsed -i '1s/^/import os\n/' app/middleware.py
+#
+# github.ref:
+#
+#   This variable represents the Git reference that triggered the workflow. It provides the full reference name, including the prefix (e.g., refs/heads/ for branches or refs/tags/ for tags).
+#   For example, if your workflow is triggered by a push to a branch named feature/xyz, then github.ref will have the value refs/heads/feature/xyz.
+#   If the workflow is triggered by the creation of a new tag v1.0, then github.ref will be refs/tags/v1.0.
+#
+#   github.head_ref:
+#   This variable is only available when the workflow is triggered by a pull request event. It represents the head (source) branch of the pull request.
+#   For example, if a pull request is opened from a branch named feature/xyz to merge into main, then github.head_ref will have the value feature/xyz.
+#   If the workflow is not triggered by a pull request event, github.head_ref will be undefined, and you should handle this scenario in your workflow accordingly.
+#

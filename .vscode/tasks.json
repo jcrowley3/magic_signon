@@ -1,0 +1,87 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Start Docker",
+            "type": "shell",
+            "command": "./debug.sh",
+            "problemMatcher": [],
+            // "isBackground": true,
+            "presentation": {
+                "group": "build",
+                "panel": "dedicated",
+                "close": true,
+                "reveal": "silent"
+            }
+        },
+        {
+            "label": "Wait for Debugger",
+            "type": "shell",
+            "command": [
+                "while ! docker ps --filter 'name=magic_signon_api' --format '{{.Status}}' | grep 'Up'; do",
+                "  sleep .5;",
+                "done;",
+                "while ! nc -z localhost 5680; do",
+                "  sleep .5;",
+                "done;",
+                "sleep 2;",
+                "echo 'Ready!'"
+            ],
+            "problemMatcher": [],
+            "presentation": {
+                "group": "build",
+                "panel": "shared",
+                "close": true,
+                "reveal": "silent"
+            }
+        },
+        {
+            "label": "Start Logs",
+            "type": "shell",
+            "dependsOn": ["Start App & DB Logs", "Start SQS Logs"],
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Start App & DB Logs",
+            "type": "shell",
+            "command": "./.vscode/logs_app-db_and_down.sh",
+            "problemMatcher": [],
+            "presentation": {
+                "group": "logs",
+                "panel": "dedicated",
+                "close": false,
+                "focus": true
+            }
+        },
+        {
+            "label": "Start SQS Logs",
+            "type": "shell",
+            "command": "./.vscode/logs_sqs_and_down.sh",
+            "problemMatcher": [],
+            "presentation": {
+                "group": "logs",
+                "panel": "dedicated",
+                "close": false,
+                "focus": true
+            }
+        },
+        {
+            "label": "Close Docker Containers",
+            "type": "shell",
+            "command": "docker-compose down",
+            "problemMatcher": [],
+            "isBackground": true,
+            "presentation": {
+                "group": "logs",
+                "panel": "dedicated",
+                "close": true,
+                "focus": false
+            }
+        }
+
+    ]
+}

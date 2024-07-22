@@ -1,0 +1,93 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug Local App",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/app/main.py",
+            "console": "integratedTerminal", //"externalTerminal",
+            "cwd": "${workspaceFolder}",
+            "justMyCode": true,
+            "env": {"PYDEVD_DISABLE_FILE_VALIDATION": "1"},
+            "presentation": {"order": 3}
+        },
+        {
+            "name": "Debug File",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "presentation": {"order": 2}
+        },
+        {
+            // Used by the VSCode test runner
+            "name": "PyTest",
+            "type": "debugpy",
+            "purpose": ["debug-test"],
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "env": {"PYTHONPATH": "${cwd}"},
+            "justMyCode": true,
+            "presentation": {"hidden": true}
+        },
+        {
+            "name": "Attach_Debugger",
+            "type": "debugpy",
+            "request": "attach",
+            "connect": {
+                "host": "localhost",
+                "port": 5680
+            },
+            "preLaunchTask": "Wait for Debugger",
+            "postDebugTask": "Close Docker Containers",
+            "pathMappings": [
+                {
+                    "localRoot": "${workspaceFolder}",
+                    "remoteRoot": "/app"
+                }
+            ],
+            "presentation": {"order": 4}
+        },
+        {
+            "name": "Start_Docker_Environment",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "-c",
+            "console": "internalConsole",
+            "internalConsoleOptions": "neverOpen",
+            "python": "${command:python.interpreterPath}",
+            "args": ["print('NOP Configuration Running')"],
+            "postDebugTask": "Start Docker",
+            "presentation": {"hidden": true}
+        },
+        {
+            "name": "Start_Logs",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "-c",
+            "console": "internalConsole",
+            "internalConsoleOptions": "neverOpen",
+            "python": "${command:python.interpreterPath}",
+            "args": ["print('NOP Configuration Running')"],
+            "preLaunchTask": "Wait for Debugger",
+            "postDebugTask": "Start Logs",
+            "presentation": {"hidden": true}
+        },
+    ],
+    "compounds": [
+        {
+            "name": "Debug Docker",
+            "configurations": ["Start_Docker_Environment", "Attach_Debugger", "Start_Logs"],
+            "presentation": {
+                "order": 1
+            }
+        }
+    ]
+}
