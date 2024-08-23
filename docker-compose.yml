@@ -74,7 +74,7 @@ services:
       POSTGRES_USER: root
       POSTGRES_PASSWORD: password
       POSTGRES_PORT: 5432
-      RAILS_JWT_SECRET_KEY: ${RAILS_JWT_SECRET_KEY}
+      MAIN_APP_JWT_SECRET_KEY: ${MAIN_APP_JWT_SECRET_KEY}
       SECRET_KEY: ${SECRET_KEY}
       SPARKPOST_KEY: ${SPARKPOST_KEY}
       TWILIO_FROM: "+16193299600"
@@ -89,7 +89,7 @@ services:
     restart: always
     networks:
       - auth_network
-    entrypoint: /entrypoint.sh # this is renamed from the swarm entrypoint script
+    entrypoint: /entrypoint.sh
 
 networks:
   auth_network:

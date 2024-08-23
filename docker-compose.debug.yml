@@ -23,7 +23,7 @@ services:
       - '5680:5680'
     networks:
       - auth_network
-    entrypoint: /entrypoint.sh # this is renamed from the swarm entrpoint script
+    entrypoint: /entrypoint.sh
 
 networks:
   auth_network:

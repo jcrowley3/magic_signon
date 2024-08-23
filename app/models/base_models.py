@@ -1,4 +1,4 @@
-from pydantic import BaseModel  # pylint: disable=no-name-in-module
+from pydantic import BaseModel
 from sqlalchemy import inspect
 from sqlalchemy.orm import DeclarativeBase, MappedAsDataclass
 

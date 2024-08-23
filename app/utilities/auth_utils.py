@@ -11,7 +11,7 @@ from pydantic import BaseModel  # pylint: disable=no-name-in-module
 
 get_bearer_token = HTTPBearer(auto_error=False)
 SECRET_KEY = os.environ["SECRET_KEY"]
-RAILS_JWT_SECRET_KEY = os.environ.get("RAILS_JWT_SECRET_KEY")
+MAIN_APP_JWT_SECRET_KEY = os.environ.get("MAIN_APP_JWT_SECRET_KEY")
 ALGORITHM = os.environ["ALGORITHM"]
 ACCESS_TOKEN_EXPIRE_MINUTES = 300
 
@@ -70,7 +70,7 @@ class Permissions:
                 )
             if self.level == "rails":
                 try:
-                    verify_rails_jwt = jwt.decode(auth, RAILS_JWT_SECRET_KEY, algorithms=[ALGORITHM])
+                    verify_rails_jwt = jwt.decode(auth, MAIN_APP_JWT_SECRET_KEY, algorithms=[ALGORITHM])
                     if verify_rails_jwt:
                         return True
                 except:
@@ -112,7 +112,7 @@ def check_token(credentials):
     except:
         pass
     try:
-        verify_rails_jwt = jwt.decode(credentials, RAILS_JWT_SECRET_KEY, algorithms=[ALGORITHM])
+        verify_rails_jwt = jwt.decode(credentials, MAIN_APP_JWT_SECRET_KEY, algorithms=[ALGORITHM])
         if verify_rails_jwt:
             return True
         else:
@@ -139,7 +139,7 @@ async def get_token(
 
 
 def create_access_token(data: dict, expires_delta: timedelta | None = None, cron_job: bool = False):
-    secret_key = RAILS_JWT_SECRET_KEY if cron_job else SECRET_KEY
+    secret_key = MAIN_APP_JWT_SECRET_KEY if cron_job else SECRET_KEY
     to_encode = data.copy()
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
