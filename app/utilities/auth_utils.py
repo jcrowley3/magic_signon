@@ -11,7 +11,7 @@ from pydantic import BaseModel  # pylint: disable=no-name-in-module
 
 get_bearer_token = HTTPBearer(auto_error=False)
 SECRET_KEY = os.environ["SECRET_KEY"]
-MAIN_APP_JWT_SECRET_KEY = os.environ.get("MAIN_APP_JWT_SECRET_KEY")
+GM_APP_JWT_SECRET_KEY = os.environ.get("GM_APP_JWT_SECRET_KEY")
 ALGORITHM = os.environ["ALGORITHM"]
 ACCESS_TOKEN_EXPIRE_MINUTES = 300
 
@@ -68,10 +68,10 @@ class Permissions:
                     status_code=status.HTTP_401_UNAUTHORIZED,
                     detail=UnAuthedMessage().detail
                 )
-            if self.level == "rails":
+            if self.level == "gm":
                 try:
-                    verify_rails_jwt = jwt.decode(auth, MAIN_APP_JWT_SECRET_KEY, algorithms=[ALGORITHM])
-                    if verify_rails_jwt:
+                    verify_gm_jwt = jwt.decode(auth, GM_APP_JWT_SECRET_KEY, algorithms=[ALGORITHM])
+                    if verify_gm_jwt:
                         return True
                 except:
                     pass
@@ -112,8 +112,8 @@ def check_token(credentials):
     except:
         pass
     try:
-        verify_rails_jwt = jwt.decode(credentials, MAIN_APP_JWT_SECRET_KEY, algorithms=[ALGORITHM])
-        if verify_rails_jwt:
+        verify_gm_jwt = jwt.decode(credentials, GM_APP_JWT_SECRET_KEY, algorithms=[ALGORITHM])
+        if verify_gm_jwt:
             return True
         else:
             return False
@@ -139,7 +139,7 @@ async def get_token(
 
 
 def create_access_token(data: dict, expires_delta: timedelta | None = None, cron_job: bool = False):
-    secret_key = MAIN_APP_JWT_SECRET_KEY if cron_job else SECRET_KEY
+    secret_key = GM_APP_JWT_SECRET_KEY if cron_job else SECRET_KEY
     to_encode = data.copy()
     if expires_delta:
         expire = datetime.utcnow() + expires_delta

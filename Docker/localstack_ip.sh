@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # get the IP address of the localstack container and add it to the DNS resolver for this host
-# changes to this script should be propagated to Magic Signon, Treasure Vault and the Rails app
+# changes to this script should be propagated to Magic Signon, Treasure Vault and the GM app
 
 # look for Localstack as "magic_signon_localstack" hostname on the Docker network
 LOCALSTACK_IP=$(dig magic_signon_localstack +short)
