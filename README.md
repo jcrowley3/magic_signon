@@ -10,6 +10,7 @@
 ## Reference Documents
 - [Alembic DB Migrations](https://github.com/jcrowley3/magic_signon/wiki/Alembic-DB-Migrations)
 - [Alembic Initial Setup](https://github.com/jcrowley3/magic_signon/wiki/Alembic-Initial-Setup)
+- [Project Structure](https://github.com/jcrowley3/magic_signon/wiki/Project-Structure)
 <!-- - [Login Sequence with Bearer Token](https://github.com/jcrowley3/magic_signon/wiki/Login-Sequence-with-Bearer-Token) -->
 <!-- - [Misc Docker Items](https://github.com/jcrowley3/magic_signon/wiki/Misc-Docker-Items) -->
 
